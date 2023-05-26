@@ -1,4 +1,16 @@
 const User = require('../models/User')
+const Yup = require('yup')
+
+const registerSchema = new Yup.ObjectSchema({
+  fname: Yup.string()
+    .required('First Name is required.')
+    .min(1, 'First Name should be atleast 1 character long.'),
+  lname: Yup.string()
+    .required('Last Name is required.')
+    .min(1, 'Last Name should be atleast 1 character long.'),
+  email: Yup.string().email('Please enter a valid email.').required('Email is required.'),
+  password: Yup.string().min(6, 'Password should be atleast six characters long.'),
+})
 
 // Handling errors
 const handleErrors = (err) => {
@@ -27,14 +39,16 @@ const login_get = (req, res) => {
 }
 
 const signup_post = async (req, res) => {
-  const { email, password } = req.body
-
   try {
-    const user = await User.create({ email, password })
+    console.log('body', req)
+    const response = await registerSchema.validate(req.body)
+    console.log('res', response)
+    const user = await User.create(req.body)
     res.status(201).json(user)
   } catch (err) {
-    const errors = handleErrors(err)
-    res.status(400).json(errors)
+    // const errors = handleErrors(err)
+    console.log(err)
+    res.status(400).json(err)
   }
 }
 
