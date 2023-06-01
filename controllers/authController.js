@@ -1,37 +1,36 @@
 const User = require('../models/User')
 const Yup = require('yup')
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
+
+const { SECRET_KEY, SIGNUP_URL } = require('../utils/constants')
 
 const registerSchema = new Yup.ObjectSchema({
-  fname: Yup.string()
-    .required('First Name is required.')
-    .min(1, 'First Name should be atleast 1 character long.'),
-  lname: Yup.string()
-    .required('Last Name is required.')
-    .min(1, 'Last Name should be atleast 1 character long.'),
-  email: Yup.string().email('Please enter a valid email.').required('Email is required.'),
-  password: Yup.string().min(6, 'Password should be atleast six characters long.'),
+  fname: Yup.string().required('First Name is required.'),
+  lname: Yup.string().required('Last Name is required.'),
+  email: Yup.string().matches(
+    /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+    'Please enter a valid email.'
+  ),
+  password: Yup.string()
+    .required('Password is required.')
+    .min(6, 'Password should be atleast six characters long.'),
 })
 
-// Handling errors
-const handleErrors = (err) => {
-  const errors = { email: '', password: '' }
-
-  // Checking for duplicate email entry
-  if (err.code === 11000) {
-    errors.email = 'User already exists.'
-    return errors
+const createToken = ({ _id, fname, lname, email }) => {
+  const payload = {
+    id: _id,
+    fname,
+    lname,
+    email,
   }
-
-  // Assigning feild errors in errors object
-  Object.values(err.errors).forEach(({ properties }) => {
-    errors[properties.path] = properties.message
-  })
-
-  return errors
+  return jwt.sign(payload, SECRET_KEY, { expiresIn: 24 * 60 * 60 })
 }
 
 const signup_get = (req, res) => {
-  res.render('signup')
+  res.render('signup', {
+    signup_url: SIGNUP_URL,
+  })
 }
 
 const login_get = (req, res) => {
@@ -39,16 +38,37 @@ const login_get = (req, res) => {
 }
 
 const signup_post = async (req, res) => {
+  const errorObj = {
+    fname: '',
+    lname: '',
+    email: '',
+    password: '',
+  }
+
   try {
-    console.log('body', req)
-    const response = await registerSchema.validate(req.body)
-    console.log('res', response)
-    const user = await User.create(req.body)
-    res.status(201).json(user)
+    await registerSchema.validate(req.body, {
+      abortEarly: false,
+    })
+
+    const isEmailExists = await User.findOne({
+      email: req.body.email,
+    })
+
+    if (isEmailExists) {
+      errorObj.email = 'This email already exists.'
+      res.status(400).json(errorObj)
+    } else {
+      const user = await User.create(req.body)
+      const jwtToken = createToken(user)
+      res.status(201).json({ access_token: jwtToken })
+    }
   } catch (err) {
-    // const errors = handleErrors(err)
     console.log(err)
-    res.status(400).json(err)
+    err.inner.forEach((error) => {
+      errorObj[error.path] = error.errors[0]
+    })
+
+    res.status(400).json(errorObj)
   }
 }
 

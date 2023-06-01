@@ -4,21 +4,34 @@
   <h2>Signup</h2>
   <label for="fname">First Name</label>
   <input type="text" name="fname" required />
+  <p class="fname error"></p>
   <label for="lname">Last Name</label>
   <input type="text" name="lname" required />
+  <p class="lname error"></p>
   <label for="email">Email</label>
   <input type="text" name="email" required />
+  <p class="email error"></p>
   <label for="password">Password</label>
   <input type="password" name="password" required />
-  <div class="password error"></div>
+  <p class="password error"></p>
   <button>Signup</button>
 </form>
 
 <script>
   const form = document.querySelector('form')
+  const fnameError = document.querySelector('.fname.error')
+  const lnameError = document.querySelector('.lname.error')
+  const emailError = document.querySelector('.email.error')
+  const passwordError = document.querySelector('.password.error')
+  const signup_url = '<%= signup_url %>'
 
   form.addEventListener('submit', async function (event) {
     event.preventDefault()
+
+    fnameError.textContent = ''
+    lnameError.textContent = ''
+    emailError.textContent = ''
+    passwordError.textContent = ''
 
     const fname = form.fname.value
     const lname = form.lname.value
@@ -31,16 +44,26 @@
       email,
       password,
     }
-
     try {
-      const res = await fetch('http://localhost:3000/signup', {
+      const res = await fetch(signup_url || ' http://localhost:3000/signup', {
         method: 'POST',
         headers: {
-          Accept: 'application.json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData),
       })
+
+      if (!res.ok) {
+        const error = await res.json()
+        console.log(error)
+        fnameError.textContent = error.fname || ''
+        lnameError.textContent = error.lname || ''
+        emailError.textContent = error.email || ''
+        passwordError.textContent = error.password || ''
+      } else {
+        location.assign('/')
+      }
     } catch (error) {
       console.log(error)
     }
