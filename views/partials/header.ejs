@@ -1,12 +1,103 @@
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-  <nav>
-    <h1><a href="/">Ninja Smoothies</a></h1>
-  </nav>
-  
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ninja Smoothies</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <nav>
+      <h1><a href="/">Ninja Smoothies</a></h1>
+      <ul id="nav-list"></ul>
+    </nav>
+    <script>
+      // Get the access token from local storage
+      const accessToken = localStorage.getItem('access_token')
+
+      // Get the ul element
+      const ul = document.getElementById('nav-list')
+
+      if (accessToken) {
+        // Create a list item for the welcome message
+        const welcomeTextListItem = document.createElement('li')
+
+        // Split the access token into its parts
+        const tokenParts = accessToken.split('.')
+
+        // Parse the payload part of the token and decode it
+        const payload = JSON.parse(atob(tokenParts[1]))
+
+        // Extract the first name and last name from the decoded payload
+        const firstName = payload.fname
+        const lastName = payload.lname
+
+        // Set the welcome message text
+        welcomeTextListItem.textContent = `Welcome, ${firstName} ${lastName}`
+
+        // Append the welcome message to the ul element
+        ul.appendChild(welcomeTextListItem)
+
+        // Create a list item for the logout link
+        const logoutListItem = document.createElement('li')
+        const logoutAnchorTag = document.createElement('a')
+
+        // Set the href attribute for the logout link
+        logoutAnchorTag.setAttribute('href', '/logout')
+
+        // Set the text content for the logout link
+        logoutAnchorTag.textContent = 'Logout'
+
+        // Add a click event listener to the logout list item
+        logoutListItem.addEventListener('click', function (event) {
+          event.preventDefault()
+
+          // Remove the access token from local storage
+          localStorage.removeItem('access_token')
+
+          // Redirect to the home page
+          location.href = '/'
+        })
+
+        // Append the logout link to the logout list item
+        logoutListItem.appendChild(logoutAnchorTag)
+
+        // Append the logout list item to the ul element
+        ul.appendChild(logoutListItem)
+      } else {
+        // Create a list item for the login link
+        const loginListItem = document.createElement('li')
+        const loginAnchorTag = document.createElement('a')
+
+        // Set the href attribute for the login link
+        loginAnchorTag.setAttribute('href', '/login')
+
+        // Set the text content for the login link
+        loginAnchorTag.textContent = 'Login'
+
+        // Append the login link to the login list item
+        loginListItem.appendChild(loginAnchorTag)
+
+        // Append the login list item to the ul element
+        ul.appendChild(loginListItem)
+
+        // Create a list item for the sign up link
+        const signUpListItem = document.createElement('li')
+        const signUpAnchorTag = document.createElement('a')
+
+        // Set the href and class attributes for the sign up link
+        signUpAnchorTag.setAttribute('href', '/signup')
+        signUpAnchorTag.setAttribute('class', 'btn')
+
+        // Set the text content for the sign up link
+        signUpAnchorTag.textContent = 'Sign up'
+
+        // Append the sign up link to the sign up list item
+        signUpListItem.appendChild(signUpAnchorTag)
+
+        // Append the sign up list item to the ul element
+        ul.appendChild(signUpListItem)
+      }
+    </script>
+  </body>
+</html>

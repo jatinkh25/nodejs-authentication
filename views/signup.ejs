@@ -28,11 +28,13 @@
   form.addEventListener('submit', async function (event) {
     event.preventDefault()
 
+    // Reset error messages
     fnameError.textContent = ''
     lnameError.textContent = ''
     emailError.textContent = ''
     passwordError.textContent = ''
 
+    // Get input values
     const fname = form.fname.value
     const lname = form.lname.value
     const email = form.email.value
@@ -44,8 +46,10 @@
       email,
       password,
     }
+
     try {
-      const res = await fetch(signup_url || ' http://localhost:3000/signup', {
+      // Make a POST request to the signup endpoint
+      const res = await fetch(signup_url || 'http://localhost:3000/signup', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -55,6 +59,7 @@
       })
 
       if (!res.ok) {
+        // Handle validation errors if the response is not successful
         const error = await res.json()
         console.log(error)
         fnameError.textContent = error.fname || ''
@@ -62,6 +67,9 @@
         emailError.textContent = error.email || ''
         passwordError.textContent = error.password || ''
       } else {
+        // If signup is successful, store the access token in local storage and redirect to the home page
+        const data = await res.json()
+        localStorage.setItem('access_token', data.access_token)
         location.assign('/')
       }
     } catch (error) {

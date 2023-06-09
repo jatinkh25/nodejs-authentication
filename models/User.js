@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const { isEmail } = require('validator')
 
+// User Schema
 const userSchema = new mongoose.Schema({
   fname: {
     type: String,
@@ -29,13 +30,27 @@ const userSchema = new mongoose.Schema({
   },
 })
 
-// Fire a function before the user is saved to db
+// Hash the password before saving the user to the database
 userSchema.pre('save', async function (next) {
   const salt = await bcrypt.genSalt()
   this.password = await bcrypt.hash(this.password, salt)
   next()
 })
 
+// Login method to compare the provided email and password
+userSchema.statics.login = async function (email, password) {
+  const user = await this.findOne({ email })
+  if (user) {
+    const auth = await bcrypt.compare(password, user.password)
+    if (auth) {
+      return user
+    }
+    throw Error('Incorrect password')
+  }
+  throw Error('Incorrect email')
+}
+
+// User model
 const User = mongoose.model('user', userSchema)
 
 module.exports = User

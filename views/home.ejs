@@ -2,14 +2,49 @@
 
 <header>
   <div class="smoothie">
-    <img src="/smoothie.png" alt="">
+    <img src="/smoothie.png" alt="" />
   </div>
   <div class="headings">
     <h2>Smoothie Recipes</h2>
     <h3>By Ninjas For Ninjas</h3>
-    <a href="/smoothies" class="btn">View Recipes</a>
+    <a class="btn" href="/smoothies" id="view-recipes">View Recipes</a>
   </div>
 </header>
 
+<script>
+  const link = document.querySelector('#view-recipes')
+
+  link.addEventListener('click', async (e) => {
+    e.preventDefault()
+
+    // Get the href value from the anchor tag
+    const href = link.getAttribute('href')
+
+    try {
+      // Make a fetch request to the href URL with the authorization header
+      const res = await fetch(href, {
+        method: 'get',
+        headers: { authorization: `Bearer ${localStorage.getItem('access_token')}` },
+      })
+
+      if (res.ok) {
+        // If the response is successful, get the HTML content
+        const html = await res.text()
+
+        // Replace the current document with the fetched HTML content
+        document.open()
+        document.write(html)
+        document.close()
+
+        // Update the URL in the address bar without refreshing the page
+        history.pushState(null, '', href)
+      } else {
+        console.log('Error:', res.status)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  })
+</script>
 
 <%- include('partials/footer'); -%>

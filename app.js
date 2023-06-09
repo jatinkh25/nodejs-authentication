@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const authRoutes = require('./routes/authRoutes')
+const { requireAuth, checkUser } = require('./middlewares/authMiddleware')
 require('dotenv').config()
 
 const app = express()
@@ -16,12 +17,17 @@ app.set('view engine', 'ejs')
 const dbURI = process.env.MONGODB_SERVER_URL || 'mongodb://localhost:27017/nodejs-auth'
 
 mongoose
-  .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
+  .connect(dbURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+  })
   .then((result) => app.listen(3000))
   .catch((err) => console.log(err))
 
 // routes
+app.get('*', checkUser)
 app.get('/', (req, res) => res.render('home'))
-app.get('/smoothies', (req, res) => res.render('smoothies'))
+app.get('/smoothies', requireAuth, (req, res) => res.render('smoothies'))
 
 app.use(authRoutes)
