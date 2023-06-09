@@ -32,5 +32,108 @@
     <p>Oats, Peanut butter, Milk, Banana, Blueberries</p>
   </li>
 </ul>
+<script>
+  // Get the access token from local storage
+  const access = localStorage.getItem('access_token')
+  // Get the ul element
+  const navList = document.getElementById('nav-list')
+  navList
+  if (access) {
+    // Create a list item for the welcome message
+    const welcomeTextListItem = document.createElement('li')
 
+    // Split the access token into its parts
+    const tokenParts = access.split('.')
+
+    // Parse the payload part of the token and decode it
+    const payload = JSON.parse(atob(tokenParts[1]))
+
+    // Extract the first name and last name from the decoded payload
+    const firstName = payload.fname
+    const lastName = payload.lname
+
+    // Set the welcome message text
+    welcomeTextListItem.textContent = `Welcome, ${firstName} ${lastName}`
+
+    // Append the welcome message to the navList element
+    navList.appendChild(welcomeTextListItem)
+
+    // Create a list item for the Home link
+    const homeListItem = document.createElement('li')
+    const homeAnchorTag = document.createElement('a')
+
+    // Set the href and class attribute for the Home link
+    homeAnchorTag.setAttribute('href', '/')
+    homeAnchorTag.setAttribute('class', 'btn')
+
+    // Set the text content for the Home link
+    homeAnchorTag.textContent = 'Home'
+
+    // Append the logout link to the Home list item
+    homeListItem.appendChild(homeAnchorTag)
+
+    // Append the logout list item to the navList element
+    navList.appendChild(homeListItem)
+
+    // Create a list item for the logout link
+    const logoutListItem = document.createElement('li')
+    const logoutAnchorTag = document.createElement('a')
+
+    // Set the href attribute for the logout link
+    logoutAnchorTag.setAttribute('href', '/logout')
+
+    // Set the text content for the logout link
+    logoutAnchorTag.textContent = 'Logout'
+
+    // Add a click event listener to the logout list item
+    logoutListItem.addEventListener('click', function (event) {
+      event.preventDefault()
+
+      // Remove the access token from local storage
+      localStorage.removeItem('access_token')
+
+      // Redirect to the home page
+      location.href = '/'
+    })
+
+    // Append the logout link to the logout list item
+    logoutListItem.appendChild(logoutAnchorTag)
+
+    // Append the logout list item to the navList element
+    navList.appendChild(logoutListItem)
+  } else {
+    // Create a list item for the login link
+    const loginListItem = document.createElement('li')
+    const loginAnchorTag = document.createElement('a')
+
+    // Set the href attribute for the login link
+    loginAnchorTag.setAttribute('href', '/login')
+
+    // Set the text content for the login link
+    loginAnchorTag.textContent = 'Login'
+
+    // Append the login link to the login list item
+    loginListItem.appendChild(loginAnchorTag)
+
+    // Append the login list item to the navList element
+    navList.appendChild(loginListItem)
+
+    // Create a list item for the sign up link
+    const signUpListItem = document.createElement('li')
+    const signUpAnchorTag = document.createElement('a')
+
+    // Set the href and class attributes for the sign up link
+    signUpAnchorTag.setAttribute('href', '/signup')
+    signUpAnchorTag.setAttribute('class', 'btn')
+
+    // Set the text content for the sign up link
+    signUpAnchorTag.textContent = 'Sign up'
+
+    // Append the sign up link to the sign up list item
+    signUpListItem.appendChild(signUpAnchorTag)
+
+    // Append the sign up list item to the navList element
+    navList.appendChild(signUpListItem)
+  }
+</script>
 <%- include('partials/footer'); -%>

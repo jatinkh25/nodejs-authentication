@@ -30,7 +30,6 @@
       if (res.ok) {
         // If the response is successful, get the HTML content
         const html = await res.text()
-
         // Replace the current document with the fetched HTML content
         document.open()
         document.write(html)
